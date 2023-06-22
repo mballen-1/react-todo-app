@@ -6,11 +6,13 @@ function SingleTask({task, onRemoveTask, onTaskChange}) {
         return (
             <li key={task.id} className={task.completed ? 'task_li__font-style' : ''}>
                 <input type="checkbox" checked={task.completed} onChange={() => onTaskChange(task)}/>
-                {task.name}
+                <span>
+                    {task.name}
+                </span>
                 <button onClick={ () => onRemoveTask(task.id)}>x</button>
             </li>
         )
     }
 }
-
+    
 export default SingleTask;

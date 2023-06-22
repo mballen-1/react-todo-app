@@ -1,9 +1,10 @@
 import './App.css';
 import './index.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TaskList from './components/molecules/TaskList';
 
 function App() {
+  
   const [taskName, setTaskName] = useState('');
   const [activeTasks, setActiveTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
@@ -17,111 +18,108 @@ function App() {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && taskName) {
-      if(currentSelection === 'all' || currentSelection === 'active'){
-        const currentRenderedTasks = renderedTasks;
-        setRenderedTasks([...currentRenderedTasks,
+      const currentActiveTasks = activeTasks;
+      const newActiveTasks = [...currentActiveTasks,
         {
           name: taskName,
           id: taskCounter,
           completed: false
-        }]);
-      }
-
-      const currentActiveTasks = activeTasks;
-      setActiveTasks([...currentActiveTasks,
-      {
-        name: taskName,
-        id: taskCounter,
-        completed: false
-      }]);
-      
+        }
+      ]
+      setActiveTasks(newActiveTasks);
       setTaskName('');
       setTaskCounter(taskCounter + 1);
     }
   }
 
-  function handleRemoveTask(taskId) {
-    const newTaskList = renderedTasks.filter(t => t.id !== taskId);
-    setRenderedTasks(newTaskList);
+  useEffect(() => {
+    const mp = {
+      'all': completedTasks.concat(activeTasks),
+      'active': activeTasks,
+      'completed': completedTasks
+    }
+    const newRenderedTasks = mp[currentSelection].sort((a,b) => {
+      if (a.id < b.id){
+        return -1;
+      } 
+      if (a.id > b.id){
+        return 1;
+      }
+      return 0;
+    });
+    setRenderedTasks(newRenderedTasks);
+  }, [activeTasks, completedTasks, currentSelection]);
 
+  const handleRemoveTask = (taskId) => {
     const newCompletedList = completedTasks.filter(t => t.id !== taskId);
     setCompletedTasks(newCompletedList);
-
+    
     const newActiveList = activeTasks.filter(t => t.id !== taskId);
     setActiveTasks(newActiveList);
   }
 
-  function handleTaskChange (task) {
-      let currentCompleted = completedTasks;
-      let currentActive = activeTasks;
-      const newTaskList = renderedTasks.map(t => {
-        if(t.id === task.id){
-          t.completed = !t.completed;
-          if(t.completed){
-            currentCompleted.push(task);
-            currentActive = currentActive.filter(t => t.id !== task.id)
-          } else {
-            currentActive.push(task);
-            currentCompleted = currentCompleted.filter(t => t.id !== task.id)
-          }
-        }
-        return t
-      });
-      setRenderedTasks(newTaskList);
-      setCompletedTasks(currentCompleted);
-      setActiveTasks(currentActive);
+  const handleTaskChange = (task) => {
+    let currentCompleted = completedTasks;
+    let currentActive = activeTasks;
+
+    task.completed = !task.completed;
+    if(currentActive.includes(task)){
+      currentCompleted = [...currentCompleted, task];
+      currentActive = currentActive.filter(t => t.id !== task.id)
+    }else {
+      currentActive = [...currentActive, task];
+      currentCompleted = currentCompleted.filter(t => t.id !== task.id)
+    }
+    
+    setCompletedTasks(currentCompleted);
+    setActiveTasks(currentActive);
   }
 
-  const handleFilterActive = () => {
-    setCurrentSelection('active')
-    setRenderedTasks(activeTasks);
-  } 
-
-  const handleNoFilter = () => {
-    setCurrentSelection('all')
-    const newTasks = activeTasks.concat(completedTasks);
-    setRenderedTasks(newTasks);
-  }
-
-  const handleFilterCompleted = () => {
-    setCurrentSelection('completed')
-    setRenderedTasks(completedTasks);
-  }
-
-  const handleClearCompleted = () => {
-    const newTasks = renderedTasks.filter(task => !task?.completed);
-    setRenderedTasks(newTasks);
-    setCompletedTasks([]);
+  const completeAllTasks = () => {
+    let currentActive = activeTasks;
+    setCompletedTasks([...completedTasks.concat(currentActive.map(t => {
+      t.completed = true;
+      return t;
+    }))])
+    setActiveTasks([])
   }
 
   return (
     <div className="App">
       <h1>todos</h1>
-      <input
-        type='text'
-        placeholder='What needs to be done?'
-        className='app_input__text'
-        value={taskName}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-      />
+      <div>
+        <button onClick={completeAllTasks}>
+          Complete All
+        </button>
+        <input
+          type='text'
+          placeholder='What needs to be done?'
+          className='app_input__text'
+          value={taskName}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+        />
+      </div>
+
       <TaskList
-        tasks={renderedTasks} 
+        tasks={renderedTasks}
         removeTask={handleRemoveTask}
-        changeTaskStatus={handleTaskChange} 
+        changeTaskStatus={handleTaskChange}
       />
       <div>
-        {activeTasks.length} items left
-        <button onClick={handleNoFilter}>
+        <span>
+          {activeTasks.length} items left
+        </span>
+        <button onClick={() => setCurrentSelection('all')}>
           All
         </button>
-        <button onClick={handleFilterActive}>
+        <button onClick={() => setCurrentSelection('active')}>
           Active
         </button>
-        <button onClick={handleFilterCompleted}>
+        <button onClick={() => setCurrentSelection('completed')}>
           Completed
         </button>
-        <button onClick={handleClearCompleted}>
+        <button onClick={() => setCompletedTasks([])}>
           Clear Completed
         </button>
       </div>
