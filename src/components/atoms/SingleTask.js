@@ -1,19 +1,16 @@
-import {useState} from 'react';
-import './SingleTask.css'
+import './SingleTask.css';
+import { useState } from 'react';
 
-function SingleTask({task, onRemoveTask}) {
-    const [checked, setChecked] = useState(false);
-    function handleCheckChange() {
-        const currentCheckState = checked;
-        setChecked(!currentCheckState);
+function SingleTask({task, onRemoveTask, onTaskChange}) {
+    if (task) {
+        return (
+            <li key={task.id} className={task.completed ? 'task_li__font-style' : ''}>
+                <input type="checkbox" checked={task.completed} onChange={() => onTaskChange(task)}/>
+                {task.name}
+                <button onClick={ () => onRemoveTask(task.id)}>x</button>
+            </li>
+        )
     }
-    return (
-        <li key={task.id} className={checked ? 'task_li__font-style' : ''}>
-            <input type="checkbox" checked={checked} onChange={handleCheckChange}/>
-            {task.name}
-            <button onClick={ () => onRemoveTask(task.id)}>x</button>
-        </li>
-    )
 }
 
 export default SingleTask;

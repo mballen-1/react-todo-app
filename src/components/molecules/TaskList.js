@@ -1,12 +1,16 @@
 import './TaskList.css';
 import SingleTask from '../atoms/SingleTask.js';
 
-function TaskList({ tasks, removeTask }) {
+function TaskList({ tasks, removeTask, changeTaskStatus }) {
     return (
         <ul>
             {
                 tasks.map(t =>
-                    <SingleTask task={t} onRemoveTask={removeTask}/>
+                    <SingleTask 
+                        task={t} 
+                        onRemoveTask={removeTask} 
+                        onTaskChange={changeTaskStatus}
+                    />
                 )
             }
         </ul>
