@@ -1,7 +1,7 @@
 import './TaskList.css';
 import SingleTask from '../atoms/SingleTask.js';
 
-function TaskList({ tasks, removeTask, changeTaskStatus }) {
+function TaskList({ tasks, removeTask, changeTaskStatus, changeTaskName }) {
     return (
         <ul>
             {
@@ -10,6 +10,7 @@ function TaskList({ tasks, removeTask, changeTaskStatus }) {
                         task={t} 
                         onRemoveTask={removeTask} 
                         onTaskChange={changeTaskStatus}
+                        onNameChange={changeTaskName}
                     />
                 )
             }
