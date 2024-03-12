@@ -1,3 +1,14 @@
 .task_li__font-style {
     text-decoration: line-through ;
 }
+
+.task_li__display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.task_close_button__size {
+    width: 13px;
+    height: 13px;
+}
